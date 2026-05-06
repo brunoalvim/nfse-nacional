@@ -678,7 +678,7 @@ class Danfse extends DaCommon
             }
             $y += 0;
             $w = 60; //$maxW - (2 * $x);
-            $texto = "SEM VALOR FISCAL";
+            //$texto = "SEM VALOR FISCAL";
             $aFont = ['font' => $this->fontePadrao, 'size' => 58, 'style' => 'B'];
             $this->pdf->textBox($x, $y, $w, $h, $texto, $aFont, 'C', 'C', 0, '');
             $this->pdf->settextcolor(0, 0, 0);
@@ -892,7 +892,8 @@ class Danfse extends DaCommon
         $this->pdf->setX($x);
         $this->pdf->cell($w4, 3, $this->servico['codigo_tributacao_nacional'] ?? '', 0, 0, 'L');
         $this->pdf->cell($w4, 3, '', 0, 0, 'L'); // Código Municipal não disponível no XML
-        $localPrest = $this->servico['local_prestacao'] ?? '';
+
+        $localPrest = $this->infNfse['local_prestacao'] ?? '';
         if ($localPrest == '0000000') $localPrest = 'Aguas Maritimas';
         $this->pdf->cell($w4, 3, $localPrest, 0, 0, 'L');
         $this->pdf->cell($w4, 3, '', 0, 1, 'L');
@@ -1120,8 +1121,15 @@ class Danfse extends DaCommon
             $this->pdf->setFont($this->fontePadrao, '', 7);
             $y = $this->pdf->getY();
             $this->pdf->setXY($x, $y);
-            $this->pdf->multiCell($this->wPrint, 3, $this->servico['info_complementar'], 1, 'L');
-            
+
+            $cNBS = $this->nfseArray['infNFSe']['DPS']['infDPS']['serv']['cServ']['cNBS'] ?? null;
+            $cObra = $this->nfseArray['infNFSe']['DPS']['infDPS']['serv']['obra']['cObra'] ?? null;
+            if (!empty($cObra)) {
+                $this->pdf->multiCell($this->wPrint, 3, $this->servico['info_complementar'] . ' |  Cod Obra: ' . $cObra . ' | NBS: ' . $cNBS, 1, 'L');
+            } else {
+                $this->pdf->multiCell($this->wPrint, 3, $this->servico['info_complementar'] . ' | NBS: ' . $cNBS, 1, 'L');
+            }
+
             $y = $this->pdf->getY() + 1;
         }
 
@@ -1376,7 +1384,7 @@ class Danfse extends DaCommon
         else {
             if ($obj->ambGer == '2') {
                 $resp['status'] = false;
-                $resp['message'][] =  "NFe EMITIDA EM HOMOLOGAÇÃO";
+                //$resp['message'][] =  "NFe EMITIDA EM HOMOLOGAÇÃO";
                 //$resp['submessage'] = "SEM VALOR FISCAL";
             }
             // Validar o retorno do evento da NFSe
